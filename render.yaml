@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: E-Tokisana
+    env: node
+    plan: free
+    buildCommand: |
+      npm install
+      npm run build
+      mkdir -p built/Utils/Emails/Template
+      cp -r src/Utils/Emails/Template/* built/Utils/Emails/Template/
+    startCommand: node built/server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        value: my_secret_key
