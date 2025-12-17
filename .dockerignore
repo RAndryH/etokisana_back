@@ -1,0 +1,7 @@
+node_modules
+package-lock.json
+# server.ts
+built_backup
+# built
+built/
+.env
