@@ -16,4 +16,4 @@ export const MAILTRAP_USER = '2a6a049ea742dd'
 export const MAILTRAP_PASS = '1b8d17f7b2651a'
 export const PORT_DEV = 8000
 export const LIMIT = '50mb'
-export const EMAIL_TEMPLATE_PATH = path.join( __dirname, '/workspace/built/Utils/Emails/Template') // koyed path: /workspace/built/Utils/Emails/Template Local path: ../../Utils/Emails/Template
+export const EMAIL_TEMPLATE_PATH = path.join( __dirname, '../built/Utils/Emails/Template') // koyed path: /workspace/built/Utils/Emails/Template Local path: ../../Utils/Emails/Template
