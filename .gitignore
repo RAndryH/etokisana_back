@@ -4,3 +4,5 @@ node_modules
 built_backup
 # built
 built/
+*.log
+.DS_Store

@@ -38,8 +38,11 @@ RUN npm prune --omit=dev
 FROM base
 
 # Copy built application
-COPY --from=build /app /app
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/built ./built
+COPY --from=builder /app/src/Utils/Emails/Template ./built/Utils/Emails/Template
 
 # Start the server by default, this can be overwritten at runtime
 EXPOSE 3000
-CMD [ "npm", "run", "start" ]
+CMD [ "node", "built/server.js" ]
