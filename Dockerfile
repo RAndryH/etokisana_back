@@ -1,48 +1,45 @@
-# syntax = docker/dockerfile:1
-
 # Adjust NODE_VERSION as desired
 ARG NODE_VERSION=22.21.1
 FROM node:${NODE_VERSION}-slim AS base
 
-LABEL fly_launch_runtime="Node.js"
-
-# Node.js app lives here
 WORKDIR /app
 
-# Set production environment
-ENV NODE_ENV="production"
+# Copier package.json
+COPY package*.json ./
 
+# Installer toutes les dépendances (dev incluses pour le build)
+RUN npm ci
 
-# Throw-away build stage to reduce size of final image
-FROM base AS build
-
-# Install packages needed to build node modules
-RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y build-essential node-gyp pkg-config python-is-python3
-
-# Install node modules
-COPY .npmrc package.json ./
-RUN npm install --include=dev
-
-# Copy application code
+# Copier le code source
 COPY . .
 
-# Build application
+# Build TypeScript
 RUN npm run build
 
-# Remove development dependencies
-RUN npm prune --omit=dev
+# Copier les fichiers non-TypeScript
+RUN mkdir -p built/Utils/Emails/Template && \
+    cp -r src/Utils/Emails/Template/* built/Utils/Emails/Template/
 
+# Production image
+FROM node:18-alpine
 
-# Final stage for app image
-FROM base
+WORKDIR /app
 
-# Copy built application
-COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/node_modules ./node_modules
+# Copier package.json
+COPY package*.json ./
+
+# Installer seulement les dépendances de production
+RUN npm ci --only=production
+
+# Copier le build
 COPY --from=builder /app/built ./built
-COPY --from=builder /app/src/Utils/Emails/Template ./built/Utils/Emails/Template
 
-# Start the server by default, this can be overwritten at runtime
-EXPOSE 3000
-CMD [ "node", "built/server.js" ]
+# Vérifier que les fichiers sont là
+RUN ls -la built/ && \
+    ls -la built/Utils/Emails/Template/
+
+# Exposer le port Koyeb
+EXPOSE 8000
+
+# Commande de démarrage
+CMD ["node", "built/server.js"]
