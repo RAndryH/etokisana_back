@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 import { BCRYPT_SALT } from "../Utils/constant/constant";
 
 export interface User {
-    // _id              : string,
+    _id?: string,
     userNickName: string;
     userName: string;
     userFirstname: string;
@@ -13,6 +13,7 @@ export interface User {
     userType: string;
     userTotalSolde: number;
     userAccess: string;
+    userStatut?: boolean;
     // userparrainID        : string;
     userValidated: boolean;
     userEmailVerified: boolean;
@@ -82,15 +83,16 @@ export const UserSchema = new Schema<User>({
     }
 });
 
-UserSchema.pre('save', async function(next) {
+// Hashage du mot de passe avant de sauvegarder l'utilisateur
+UserSchema.pre('save', async function (next) {
     if (!this.isModified('userPassword')) return next();
     this.userPassword = await bcrypt.hash(this.userPassword, BCRYPT_SALT);
     next();
 });
 
 // Comparaison du mot de passe
-UserSchema.methods.comparePassword = async function(pw: any) {
-  return bcrypt.compare(pw, this.password);
+UserSchema.methods.comparePassword = async function (pw: any) {
+    return bcrypt.compare(pw, this.password);
 };
 
 export const UserModel = model<User>('user', UserSchema)

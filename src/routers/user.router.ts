@@ -13,6 +13,8 @@ import { SiteModel } from "../models/site.model";
 import nodemailer from 'nodemailer';
 import dotenv from "dotenv";
 import { BCRYPT_SALT, JWT_SECRET } from "../Utils/constant/constant";
+import UserController from "../controller/user.controller";
+
 dotenv.config();
 const userRouter = Router();
 
@@ -96,145 +98,9 @@ userRouter.post("/requestVerificationEmail", asyncHandler(async (req, res) => {
 
 }))
 
-userRouter.post("/register/", asyncHandler(async (req, res) => {
+// Register Router
+userRouter.post("/register", UserController.REGISTER);
 
-  let tokenInfo
-  let userDb
-
-  //----------------------
-  //Récupération des informations de l'utilisateur
-  //----------------------
-  const {
-    userNickName,
-    userName,
-    userFirstname,
-    userPassword,
-    userEmail,
-    userPhone,
-    userAccess,
-    // userparrainID,
-    userType,
-    userDateOfBirth,
-    userAddress,
-    userMainLat,
-    userMainLng,
-    userId,
-    userEmailVerified,
-    userValidated,
-    userImage,
-    identityDocument,
-    identityCardNumber,
-    documentType,
-    raisonSocial,
-    type,
-    rcs,
-    carteStat,
-    nif,
-    carteFiscal,
-    logo,
-    managerName,
-    managerEmail,
-    parrain1ID,
-    parrain2ID,
-  } = req.body;
-
-
-  //----------------------
-  //Check si l'email est déjà utilisé
-  //----------------------
-  const user = await UserModel.findOne({ userEmail: userEmail.toLowerCase() });
-  if (user) {
-    res.status(500).send("Ce nom est déjà utilisé !");
-    return;
-  } else {
-
-    const newUser: User = {
-      userNickName,
-      userName,
-      userFirstname,
-      userPassword,
-      userEmail: userEmail.toLowerCase(),
-      userPhone,
-      userTotalSolde: 0,
-      userType,
-      userAccess,
-      // userparrainID,
-      userValidated,
-      userEmailVerified,
-      userAddress,
-      userDateOfBirth,
-      userMainLat,
-      userMainLng,
-      userId,
-      userImage,
-      identityDocument,
-      identityCardNumber,
-      documentType,
-      raisonSocial,
-      type,
-      rcs,
-      carteStat,
-      nif,
-      carteFiscal,
-      logo,
-      managerName,
-      managerEmail,
-      parrain1ID,
-      parrain2ID,
-    }
-    
-    userDb = await UserModel.create(newUser);
-
-  }
-
-  tokenInfo = generateTokenResponse(userDb);
-  const tokenDB: Token = {
-    userId: tokenInfo._id,
-    token: tokenInfo.token,
-  }
-  await TokenModel.create(tokenDB);
-
-  //Sending mail
-  const verificationLink = "https://www.commercegestion.com/#/user-confirmation/" + tokenInfo.token;
-  if (userType == "Entreprise") {
-
-    SendEmail(
-      "baseMail",
-      "ValidationEntrepriseEmail",
-      userEmail,
-      "Bienvenue sur Etokisana",
-      {
-        name: raisonSocial,
-        link: verificationLink,
-      }
-    )
-
-  }
-  if (userType == "Particulier") {
-
-    SendEmail(
-      "baseMail",
-      "ValidationEmail",
-      userEmail,
-      "Bienvenue sur Etokisana",
-      {
-        name: raisonSocial,
-        link: verificationLink,
-      }
-    )
-
-
-  }
-  let newNotification = {
-    userId: userId,
-    title: "Inscription en attente",
-    message: "Nous vous remercions de votre patience pendant la validation de votre insciption au sein de nos administrateurs",
-    state: "new",
-  }
-  await NotificationModel.create(newNotification);
-  res.status(200).send(['Utilisateur créé !!!']);
-}
-))
 userRouter.get("/checkparrain/:id", asyncHandler(async (req, res) => {
   const user = await UserModel.findOne({ _id: req.params['id'] });
   if (user) {

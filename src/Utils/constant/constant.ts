@@ -1,6 +1,6 @@
 import path from "path"
 
-export const MONGO_URI = 'mongodb+srv://randryh:xrLsLv7Nwn7q0YyD@cluster0.xjaop.mongodb.net/etokisana' //'mongodb://localhost:27017/etokisana'
+export const MONGO_URI = 'mongodb://localhost:27017/etokisana'// 'mongodb+srv://randryh:xrLsLv7Nwn7q0YyD@cluster0.xjaop.mongodb.net/etokisana'
 export const JWT_SECRET = 'e-tokisana'
 export const EMAIL_HOST = 'commercegestion.com'
 export const EMAIL_USERNAME = 'contact@commercegestion.com'
